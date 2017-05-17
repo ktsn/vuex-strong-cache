@@ -1,6 +1,6 @@
 # vuex-strong-cache
 
-Allow stronger chace for Vuex getters.
+Allow stronger cache for Vuex getters.
 
 ## What is this?
 
