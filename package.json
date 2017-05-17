@@ -1,6 +1,6 @@
 {
   "name": "vuex-strong-cache",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "katashin",
   "description": "Allow stronger cache for Vuex getters",
   "keywords": [
