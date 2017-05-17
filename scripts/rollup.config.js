@@ -2,9 +2,13 @@ const replace = require('rollup-plugin-replace')
 const meta = require('../package.json')
 
 const config = {
-  entry: 'lib/index.js',
+  entry: 'lib/enhancer.js',
   moduleName: 'VuexStrongCache',
   plugins: [],
+  external: ['vue'],
+  globals: {
+    vue: 'Vue'
+  },
   banner: `/*!
  * ${meta.name} v${meta.version}
  * ${meta.homepage}
