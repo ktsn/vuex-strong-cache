@@ -4,6 +4,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { enhancedGetters } from '../src/enhancer'
 
+Vue.config.productionTip = false
+
 describe('Enhanced Getters', () => {
   before(() => {
     Vue.use(Vuex)
