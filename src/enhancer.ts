@@ -58,11 +58,7 @@ function isUpdated(cache: CacheEntry, args: any[]): boolean {
   if (!oldArgs || oldArgs.length !== args.length) return true
 
   return oldArgs.reduce((acc, old, i) => {
-    // Always mark object value as updated
-    // since it can be mutated
-    return acc
-      || old !== args[i]
-      || typeof old === 'object'
+    return acc || old !== args[i]
   }, false)
 }
 
