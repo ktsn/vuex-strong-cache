@@ -4,7 +4,7 @@ Allow stronger chace for Vuex getters.
 
 ## What is this?
 
-This library allows you to cache the result of function that returns a getter. In other words, even if you write like the following getter, the final result will be cached as same as a normal getter result.
+This library allows you to cache the result of function that returned by a getter. In other words, even if you write like the following getter, the final result will be cached as same as a normal getter result.
 
 ```js
 getters: {
