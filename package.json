@@ -41,6 +41,7 @@
   "devDependencies": {
     "@types/mocha": "^2.2.32",
     "@types/power-assert": "1.4.29",
+    "es6-promise": "^4.1.0",
     "glob": "^7.1.0",
     "power-assert": "^1.4.1",
     "rollup": "^0.41.1",
