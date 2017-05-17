@@ -61,6 +61,8 @@ function isUpdated(xs: any[], ys: any[]): boolean {
   if (xs.length !== ys.length) return true
 
   return xs.reduce((acc, x, i) => {
-    return acc || x !== ys[i]
+    // Always mark object value as updated
+    // because it can be mutated
+    return acc || x !== ys[i] || typeof x === 'object'
   }, false)
 }

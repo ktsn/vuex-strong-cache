@@ -61,4 +61,23 @@ describe('Enhanced Getters', () => {
 
     assert(store.getters.test === 40)
   })
+
+  it('should return fresh value even if argument object is mutated', () => {
+    const store = new Vuex.Store({
+      state: {
+        value: 1
+      },
+
+      getters: enhancedGetters<{ value: number }>({
+        test: state => (n: { value: number }) => {
+          return state.value + n.value
+        }
+      })
+    })
+
+    const n = { value: 2 }
+    assert(store.getters.test(n) === 3)
+    n.value = 3
+    assert(store.getters.test(n) === 4)
+  })
 })
