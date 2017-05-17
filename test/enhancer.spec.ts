@@ -80,4 +80,21 @@ describe('Enhanced Getters', () => {
     n.value = 3
     assert(store.getters.test(n) === 4)
   })
+
+  it('should clear the cache if state is updated', () => {
+    const store = new Vuex.Store({
+      state: {
+        value: 1
+      },
+      getters: enhancedGetters<{ value: number }>({
+        foo: state => (n: number) => {
+          return state.value + n
+        }
+      })
+    })
+
+    assert(store.getters.foo(1) === 2)
+    store.state.value = 10
+    assert(store.getters.foo(1) === 11)
+  })
 })

@@ -1,68 +1,92 @@
 import Vue from 'vue'
 import { Getter, GetterTree } from 'vuex'
 
+interface CacheEntry {
+  args: any[]
+  fn: Function
+}
+
 interface Cache {
-  [key: string]: {
-    args: any[],
-    result: any
+  [key: string]: CacheEntry
+}
+
+interface CacheVm extends Vue {
+  $data: {
+    cache: Cache
   }
 }
 
-interface CacheVue extends Vue {
-  cache: Cache
-}
-
 export function enhancedGetters<S, R = any>(getters: GetterTree<S, R>): GetterTree<S, R> {
-  const vm = new Vue({
-    data: { cache: {} }
-  }) as CacheVue
+  const vm = createCacheVm(getters)
 
   Object.keys(getters).forEach(key => {
-    getters[key] = wrapGetter(key, getters[key], vm.cache)
+    getters[key] = wrapGetter(key, getters[key], vm)
   })
 
   return getters
 }
 
-function wrapGetter<S, R>(name: string, getter: Getter<S, R>, cache: any): Getter<S, R> {
+function wrapGetter<S, R>(name: string, getter: Getter<S, R>, vm: CacheVm): Getter<S, R> {
   return (state: S, getters: any, rootState: R, rootGetters: any) => {
     const res = getter(state, getters, rootState, rootGetters)
 
     if (typeof res === 'function') {
-      if (!cache[name]) {
-        Vue.set(cache, name, {
+      if (!vm.$data.cache[name]) {
+        Vue.set(vm.$data.cache, name, {
           args: null,
-          result: null
+          fn: null
         })
       }
-      return wrapGetterResult(name, res, cache)
+      const cache = vm.$data.cache[name]
+      cache.fn = res
+
+      return (...args: any[]): any => {
+        if (isUpdated(cache, args)) {
+          cache.args = args
+        }
+        return (vm as any)[name]
+      }
     } else {
       return res
     }
   }
 }
 
-function wrapGetterResult(name: string, fn: Function, cacheMap: any): Function {
-  return (...args: any[]) => {
-    const cache = cacheMap[name]
+function isUpdated(cache: CacheEntry, args: any[]): boolean {
+  const oldArgs = cache.args
 
-    if (cache.args && !isUpdated(cache.args, args)) {
-      return cache.result
-    }
+  if (!oldArgs || oldArgs.length !== args.length) return true
 
-    cache.args = args
-    cache.result = fn(...args)
-
-    return cache.result
-  }
-}
-
-function isUpdated(xs: any[], ys: any[]): boolean {
-  if (xs.length !== ys.length) return true
-
-  return xs.reduce((acc, x, i) => {
+  return oldArgs.reduce((acc, old, i) => {
     // Always mark object value as updated
-    // because it can be mutated
-    return acc || x !== ys[i] || typeof x === 'object'
+    // since it can be mutated
+    return acc
+      || old !== args[i]
+      || typeof old === 'object'
   }, false)
 }
+
+function createCacheVm(getters: any): CacheVm {
+  const getterTypes = Object.keys(getters)
+
+  const options = {
+    data: {
+      cache: {}
+    },
+    computed: {}
+  }
+  getterTypes.forEach(type => {
+    (options.computed as any)[type] = function(this: CacheVm): any {
+      const cache = this.$data.cache[type]
+      if (!cache) {
+        return null
+      } else {
+        return cache.fn(...cache.args)
+      }
+    }
+  })
+
+  return new Vue(options) as CacheVm
+}
+
+function noop(): void {/* Do nothing */}
