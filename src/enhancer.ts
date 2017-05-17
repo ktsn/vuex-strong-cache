@@ -38,11 +38,11 @@ function wrapGetter<S, R>(name: string, getter: Getter<S, R>, vm: CacheVm): Gett
         })
       }
       const cache = vm.$data.cache[name]
-      cache.fn = res
 
       return (...args: any[]): any => {
-        if (isUpdated(cache, args)) {
+        if (isUpdated(cache, args, res)) {
           cache.args = args
+          cache.fn = res
         }
         return (vm as any)[name]
       }
@@ -52,7 +52,11 @@ function wrapGetter<S, R>(name: string, getter: Getter<S, R>, vm: CacheVm): Gett
   }
 }
 
-function isUpdated(cache: CacheEntry, args: any[]): boolean {
+function isUpdated(cache: CacheEntry, args: any[], fn: Function): boolean {
+  if (cache.fn !== fn) {
+    return true
+  }
+
   const oldArgs = cache.args
 
   if (!oldArgs || oldArgs.length !== args.length) return true
